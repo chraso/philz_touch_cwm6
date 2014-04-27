@@ -650,6 +650,8 @@ int confirm_selection(const char* title, const char* confirm) {
     int many_confirm;
     char* confirm_str = strdup(confirm);
     const char* confirm_headers[] = { title, "  THIS CAN NOT BE UNDONE.", "", NULL };
+    int old_val = ui_is_showing_back_button();
+    ui_set_showing_back_button(0);
 
     sprintf(path, "%s/%s", get_primary_storage_path(), RECOVERY_MANY_CONFIRM_FILE);
     // ensure_path_mounted(path);
@@ -679,6 +681,7 @@ int confirm_selection(const char* title, const char* confirm) {
         ret = (chosen_item == 1);
     }
     free(confirm_str);
+    ui_set_showing_back_button(old_val);
     return ret;
 }
 
@@ -878,7 +881,7 @@ typedef struct {
 MFMatrix get_mnt_fmt_capabilities(char *fs_type, char *mount_point) {
     MFMatrix mfm = { mount_point, 1, 1 };
 
-    const int NUM_FS_TYPES = 5;
+    const int NUM_FS_TYPES = 6;
     MFMatrix *fs_matrix = malloc(NUM_FS_TYPES * sizeof(MFMatrix));
     // Defined capabilities:   fs_type     mnt fmt
     fs_matrix[0] = (MFMatrix){ "bml",       0,  1 };
@@ -886,6 +889,7 @@ MFMatrix get_mnt_fmt_capabilities(char *fs_type, char *mount_point) {
     fs_matrix[2] = (MFMatrix){ "emmc",      0,  1 };
     fs_matrix[3] = (MFMatrix){ "mtd",       0,  0 };
     fs_matrix[4] = (MFMatrix){ "ramdisk",   0,  0 };
+    fs_matrix[5] = (MFMatrix){ "swap",      0,  0 };
 
     const int NUM_MNT_PNTS = 6;
     MFMatrix *mp_matrix = malloc(NUM_MNT_PNTS * sizeof(MFMatrix));

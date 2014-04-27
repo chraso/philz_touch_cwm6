@@ -46,9 +46,13 @@
 #   - BOARD_HAS_NO_FB2PNG := true
 #                               define this to disable fb2png support and spare some space (do not use screen capture)
 #   - BOARD_USE_NTFS_3G := false
-#                               will not include ntfs-3g binary to format and mount NTFS partitions.
+#                               will not include ntfs-3g binary to format and mount NTFS partitions. This can spare about 300kb space
 #                               devices using NTFS kernel modules will still be able to mount NTFS but not format to NTFS
-
+#
+#   - BOARD_RECOVERY_USE_BBTAR := true
+#                               spare some space and use busybox tar rather than standalone minitar binary
+#                               busybox tar cannot currently backup/restore selinux labels
+#
 
 #Amazon Kindle Fire HD 8.9 (jem)
 ifeq ($(TARGET_PRODUCT), cm_jem)
@@ -937,9 +941,6 @@ else ifeq ($(TARGET_PRODUCT), cm_nex)
 
 endif
 #---- end device specific config
-
-# temporary workaround to backup/restore selinux context, thanks to @xiaolu
-RECOVERY_NEED_SELINUX_FIX := true
 
 # The below flags must always be defined as default in BoardConfig.mk, unless defined above:
 # device name to display in About dialog
