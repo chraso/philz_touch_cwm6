@@ -44,7 +44,7 @@
 
 char *progname;
 int verbose = 0;
-int use_gnu = 0;
+int use_gnu = 1;
 
 #ifdef DEBUG
 void
@@ -166,7 +166,7 @@ tar_append_tree_with_exceptions(TAR *t, char *realdir, char *savedir)
                         (strchr(exclude_list[x],'/') ? realpath : dent->d_name),
                         FNM_PATHNAME | FNM_LEADING_DIR)) {
                     skip=1;
-                    continue;
+                    break;
                 }
             }
         }
@@ -183,7 +183,9 @@ tar_append_tree_with_exceptions(TAR *t, char *realdir, char *savedir)
         }
 
         if (verbose == 2) {
-            fprintf(stderr, "%s\n", th_get_pathname(t));
+            char *f = th_get_pathname(t);
+            fprintf(stderr, "%s\n", f);
+            free(f);
         }
         if (tar_append_file(t, realpath,
                     (savedir ? savepath : NULL)) != 0)
@@ -382,17 +384,18 @@ tar_extract_all_with_exceptions(TAR *t, char *prefix)
                         (strchr(exclude_list[x],'/') ? buf : filename),
                         FNM_PATHNAME | FNM_LEADING_DIR)) {
                     skip=1;
-                    continue;
+                    break;
                 }
             }
         }
         if (skip) {
             tar_skip_regfile(t);
+            free(filename);
             continue;
         }
 
         if (t->options & TAR_VERBOSE)
-            printf("%s\n", th_get_pathname(t));
+            printf("%s\n", filename);
         //th_print_long_ls(t);
 #ifdef DEBUG
         printf("    tar_extract_all(): calling tar_extract_file(t, "
@@ -454,7 +457,6 @@ extract(char *tarfile, char *rootdir)
 #endif
     if (tar_extract_all_with_exceptions(t, rootdir) != 0)
     {
-        
         fprintf(stderr, "tar_extract_all(): %s\n", strerror(errno));
         tar_close(t);
         return -1;
@@ -492,7 +494,7 @@ static void usage() {
            "   -z, --gzip\n"
            "   -C, --directory\n"
            "   -v, --verbose\n"
-           "   -g, --listed-incremental\n"
+           "   -H, --format [ustar][gnu](default)\n"
            "   -T, --files-from\n"
            "   -s, --selinux\n"
            "   -X, --exclude\n"
@@ -532,7 +534,7 @@ int minitar_main(int argc, char **argv)
         {"version", no_argument, 0, 'V'},
         {"directory", required_argument, 0, 'C'},
         {"verbose", no_argument, 0, 'v'},
-        {"listed-incremental", no_argument, 0, 'g'},
+        {"format", required_argument, 0, 'H'},
         {"create", no_argument, 0, 'c'},
         {"files-from", required_argument, 0, 'T'},
         {"file", required_argument, 0, 'f'},
@@ -547,7 +549,7 @@ int minitar_main(int argc, char **argv)
     };
 
     int option_index = 0;
-    while (ret == 0 && (c = getopt_long(argc, argv, "cf:T:C:gtvVxzsX:", long_options, &option_index)) != -1) {
+    while (ret == 0 && (c = getopt_long(argc, argv, "cf:T:C:gtvH:VxzsX:", long_options, &option_index)) != -1) {
         switch (c) {
             case 'V':
                 printf("libtar %s by Mark D. Roth <roth@uiuc.edu>\n", libtar_version);
@@ -559,8 +561,13 @@ int minitar_main(int argc, char **argv)
             case 'v':
                 verbose = 1;
                 break;
-            case 'g':
-                use_gnu = 1;
+            case 'H':
+                if (strcmp(optarg, "gnu") == 0)
+                    use_gnu = 1; // default format
+                else if (strcmp(optarg, "ustar") == 0)
+                    use_gnu = 0;
+                else
+                    ret = 2;
                 break;
             case 'c':
                 if (mode)
