@@ -29,6 +29,10 @@
 #   - TARGET_COMMON_NAME:       The device name that will be displayed on recovery start and in About dialogue
 #   - BRIGHTNESS_SYS_FILE := "path"
 #                               Needed to be able to alter screen brightness (touch only)
+#                               If not set, recovery will try to auto-detect it on start
+#                               If detection succeeds, 'brightness_user_path' key is set to the brightness path in ini file
+#                               On next recovery starts, auto-detect is disabled when 'brightness_user_path' key exists
+#                               If BRIGHTNESS_SYS_FILE flag is defined during compile, you cannot change brightness path without recompiling recovery
 #   - EXTRA_PARTITIONS_PATH := "path" [optional], default is "extra_part"
 #                               This will override the default "/extra_part" mount point for extra partitions
 #                               in your fstab, partition mount point must be "/extra_part1", "/extra_part2",...., "/extra_part5"
@@ -158,6 +162,7 @@ else ifeq ($(TARGET_PRODUCT), cm_ariesve)
     TARGET_SCREEN_HEIGHT := 800
     TARGET_SCREEN_WIDTH := 480
     BOARD_HAS_LOW_RESOLUTION := true
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
     BOARD_USE_B_SLOT_PROTOCOL := true
 
 #Galaxy S Advance - janice
@@ -187,6 +192,7 @@ else ifeq ($(TARGET_PRODUCT), cm_ancora)
     TARGET_SCREEN_HEIGHT := 800
     TARGET_SCREEN_WIDTH := 480
     BOARD_HAS_LOW_RESOLUTION := true
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
     BOARD_USE_B_SLOT_PROTOCOL := true
 
 #Galaxy S Blaze 4G - SGH T-769
@@ -197,6 +203,7 @@ else ifeq ($(TARGET_PRODUCT), cm_t769)
     TARGET_SCREEN_HEIGHT := 800
     TARGET_SCREEN_WIDTH := 480
     BOARD_HAS_LOW_RESOLUTION := true
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
     BOARD_USE_B_SLOT_PROTOCOL := true
 
 #Galaxy Grand Quatro (i8552)
@@ -206,6 +213,7 @@ else ifeq ($(TARGET_PRODUCT), cm_delos3geur)
     TARGET_SCREEN_HEIGHT := 800
     TARGET_SCREEN_WIDTH := 480
     BOARD_HAS_LOW_RESOLUTION := true
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
     BOARD_USE_B_SLOT_PROTOCOL := true
     
 #Galaxy S2 International - i9100
@@ -258,6 +266,7 @@ else ifeq ($(TARGET_PRODUCT), cm_celoxhd)
     KERNEL_EXFAT_MODULE_NAME := "exfat"
     TARGET_SCREEN_HEIGHT := 1280
     TARGET_SCREEN_WIDTH := 720
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
     BOARD_USE_B_SLOT_PROTOCOL := true
 
 #Samsung Exhilarate SGH-I577 (exhilarate)
@@ -268,6 +277,7 @@ else ifeq ($(TARGET_PRODUCT), cm_exhilarate)
     TARGET_SCREEN_HEIGHT := 800
     TARGET_SCREEN_WIDTH := 480
     BOARD_HAS_LOW_RESOLUTION := true
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
     BOARD_USE_B_SLOT_PROTOCOL := true
 
 #Galaxy Core Duos (i8262)
@@ -277,6 +287,7 @@ else ifeq ($(TARGET_PRODUCT), cm_i8262)
     TARGET_SCREEN_HEIGHT := 800
     TARGET_SCREEN_WIDTH := 480
     BOARD_HAS_LOW_RESOLUTION := true
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
     BOARD_USE_B_SLOT_PROTOCOL := true
 
 #Galaxy S2 Skyrocket i727 - skyrocket
@@ -287,6 +298,7 @@ else ifeq ($(TARGET_PRODUCT), cm_skyrocket)
     TARGET_SCREEN_HEIGHT := 800
     TARGET_SCREEN_WIDTH := 480
     BOARD_HAS_LOW_RESOLUTION := true
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
     BOARD_USE_B_SLOT_PROTOCOL := true
 
 #Galaxy S3 International - i9300 - i9305
@@ -304,6 +316,7 @@ else ifeq ($(TARGET_PRODUCT), cm_d2lte)
     TARGET_COMMON_NAME := $(TARGET_PRODUCT)
     BOOTLOADER_CMD_ARG := "download"
     KERNEL_EXFAT_MODULE_NAME := "exfat"
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
     TARGET_SCREEN_HEIGHT := 1280
     TARGET_SCREEN_WIDTH := 720
     BOARD_USE_B_SLOT_PROTOCOL := true
@@ -314,6 +327,7 @@ else ifneq ($(filter $(TARGET_PRODUCT), cm_apexqtmo cm_expressatt),)
     TARGET_COMMON_NAME := $(TARGET_PRODUCT)
     BOOTLOADER_CMD_ARG := "download"
     KERNEL_EXFAT_MODULE_NAME := "exfat"
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
     TARGET_SCREEN_HEIGHT := 800
     TARGET_SCREEN_WIDTH := 480
     BOARD_HAS_LOW_RESOLUTION := true
@@ -346,6 +360,7 @@ else ifeq ($(TARGET_PRODUCT), cm_hlte)
     KERNEL_EXFAT_MODULE_NAME := "exfat"
     TARGET_SCREEN_HEIGHT := 1920
     TARGET_SCREEN_WIDTH := 1080
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
     BOARD_USE_B_SLOT_PROTOCOL := true
 
 #Galaxy Note 8.0 GSM (n5100), Wifi (n5110) and LTE (n5120)
@@ -378,6 +393,7 @@ else ifeq ($(TARGET_PRODUCT), cm_lt03ltexx)
     KERNEL_EXFAT_MODULE_NAME := "exfat"
     TARGET_SCREEN_HEIGHT := 1600
     TARGET_SCREEN_WIDTH := 2560
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
     BOARD_USE_B_SLOT_PROTOCOL := true
 
 #Galaxy Note 10.1 2014 Wifi (lt03wifi), 3G (lt03wifiue)
@@ -408,6 +424,7 @@ else ifeq ($(TARGET_PRODUCT), cm_jflte)
     KERNEL_EXFAT_MODULE_NAME := "exfat"
     TARGET_SCREEN_HEIGHT := 1920
     TARGET_SCREEN_WIDTH := 1080
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
     BOARD_USE_B_SLOT_PROTOCOL := true
 
 #Galaxy S4 Mini: LTE - i9195 (serranoltexx) // 3G - i9190 (serrano3gxx) // Dual Sim (serranodsub)
@@ -417,6 +434,7 @@ else ifneq ($(filter $(TARGET_PRODUCT),cm_serranoltexx cm_serrano3gxx cm_serrano
     KERNEL_EXFAT_MODULE_NAME := "exfat"
     TARGET_SCREEN_HEIGHT := 960
     TARGET_SCREEN_WIDTH := 540
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
     BOARD_USE_B_SLOT_PROTOCOL := true
 
 #Galaxy S5 SM-G900F Qualcomm variants (klte): kltecan kltespr kltetmo kltevzw kltexx
@@ -426,6 +444,7 @@ else ifeq ($(TARGET_PRODUCT), cm_klte)
     KERNEL_EXFAT_MODULE_NAME := "exfat"
     TARGET_SCREEN_HEIGHT := 1920
     TARGET_SCREEN_WIDTH := 1080
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
     BOARD_USE_B_SLOT_PROTOCOL := true
 
 #Galaxy S5 SM-G900H Exynos variant (k3gxx)
@@ -435,6 +454,7 @@ else ifeq ($(TARGET_PRODUCT), cm_k3gxx)
     KERNEL_EXFAT_MODULE_NAME := "exfat"
     TARGET_SCREEN_HEIGHT := 1920
     TARGET_SCREEN_WIDTH := 1080
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
     BOARD_USE_B_SLOT_PROTOCOL := true
 
 #Galaxy Tab 2 - p3100, p3110
@@ -509,6 +529,16 @@ else ifneq ($(filter $(TARGET_PRODUCT),cm_lt01wifi cm_lt013g cm_lt01lte),)
     BRIGHTNESS_SYS_FILE := "/sys/class/backlight/panel/brightness"
     BOARD_USE_B_SLOT_PROTOCOL := true
 
+#Galaxy Tab Pro 8.4 WiFi SM-T320 (mondrianwifi)
+else ifeq ($(TARGET_PRODUCT), cm_mondrianwifi)
+    TARGET_COMMON_NAME := Galaxy Tab Pro SM-T320
+    BOOTLOADER_CMD_ARG := "download"
+    KERNEL_EXFAT_MODULE_NAME := "exfat"
+    TARGET_SCREEN_HEIGHT := 1600
+    TARGET_SCREEN_WIDTH := 2560
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
+    BOARD_USE_B_SLOT_PROTOCOL := true
+
 #Google Galaxy Nexus (Samsung) - maguro, toro, toroplus (tuna common device)
 else ifneq ($(filter $(TARGET_PRODUCT),cm_maguro cm_toro cm_toroplus),)
     TARGET_COMMON_NAME := Galaxy Nexus ($(TARGET_PRODUCT))
@@ -529,6 +559,7 @@ else ifeq ($(TARGET_PRODUCT), cm_mako)
     TARGET_COMMON_NAME := Nexus 4
     TARGET_SCREEN_HEIGHT := 1280
     TARGET_SCREEN_WIDTH := 768
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
 
 #Google Nexus 5 (LGE) - hammerhead
 else ifeq ($(TARGET_PRODUCT), cm_hammerhead)
@@ -536,6 +567,7 @@ else ifeq ($(TARGET_PRODUCT), cm_hammerhead)
     EXTRA_PARTITIONS_PATH := "/efs"
     TARGET_SCREEN_HEIGHT := 1920
     TARGET_SCREEN_WIDTH := 1080
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
 
 #Google Nexus 7 (ASUS) - tilapia (3G) and grouper (wifi)
 else ifneq ($(filter $(TARGET_PRODUCT),cm_tilapia cm_grouper),)
@@ -549,6 +581,7 @@ else ifneq ($(filter $(TARGET_PRODUCT),cm_flo cm_deb),)
     TARGET_COMMON_NAME := Nexus 7 (2013 $(TARGET_PRODUCT))
     TARGET_SCREEN_HEIGHT := 1920
     TARGET_SCREEN_WIDTH := 1200
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
 
 #Google Nexus 10 (Samsung) - manta
 else ifeq ($(TARGET_PRODUCT), cm_manta)
@@ -563,6 +596,7 @@ else ifeq ($(TARGET_PRODUCT), cm_tenderloin)
     TARGET_COMMON_NAME := HP Touchpad
     TARGET_SCREEN_HEIGHT := 768
     TARGET_SCREEN_WIDTH := 1024
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
 
 #HTC Desire X - protou (No 10.2 tree)
 else ifeq ($(TARGET_PRODUCT), cm_protou)
@@ -570,12 +604,14 @@ else ifeq ($(TARGET_PRODUCT), cm_protou)
     TARGET_SCREEN_HEIGHT := 800
     TARGET_SCREEN_WIDTH := 480
     BOARD_HAS_LOW_RESOLUTION := true
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
 
 #HTC Droid Incredible 4G LTE - fireball
 else ifeq ($(TARGET_PRODUCT), cm_fireball)
     TARGET_COMMON_NAME := Droid Incredible 4G LTE
     TARGET_SCREEN_HEIGHT := 960
     TARGET_SCREEN_WIDTH := 540
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
 
 #HTC Explorer - pico (no cm tree)
 else ifeq ($(TARGET_PRODUCT), cm_pico)
@@ -585,25 +621,29 @@ else ifeq ($(TARGET_PRODUCT), cm_pico)
     TARGET_SCREEN_HEIGHT := 480
     TARGET_SCREEN_WIDTH := 320
     BOARD_HAS_LOW_RESOLUTION := true
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
 
 #HTC One - m7 (m7ul, m7tmo, m7att) / m7spr / m7vzw
 else ifneq ($(filter $(TARGET_PRODUCT), cm_m7 cm_m7spr cm_m7vzw),)
     TARGET_COMMON_NAME := HTC One ($(TARGET_PRODUCT))
-    KERNEL_EXFAT_MODULE_NAME := "texfat"
+    KERNEL_EXFAT_MODULE_NAME := "exfat"
     TARGET_SCREEN_HEIGHT := 1920
     TARGET_SCREEN_WIDTH := 1080
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
 
 #HTC Droid DNA (dlx)
 else ifeq ($(TARGET_PRODUCT), cm_dlx)
     TARGET_COMMON_NAME := HTC Droid DNA (dlx)
     TARGET_SCREEN_HEIGHT := 1920
     TARGET_SCREEN_WIDTH := 1080
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
 
 #HTC Desire 601 (zara)
 else ifeq ($(TARGET_PRODUCT), cm_zara)
     TARGET_COMMON_NAME := HTC Desire 601 (zara)
     TARGET_SCREEN_HEIGHT := 960
     TARGET_SCREEN_WIDTH := 540
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
 
 #HTC One X (endeavoru) - HTC One X+ (enrc2b)
 else ifneq ($(filter $(TARGET_PRODUCT),cm_endeavoru cm_enrc2b),)
@@ -618,12 +658,14 @@ else ifeq ($(TARGET_PRODUCT), cm_evita)
     TARGET_COMMON_NAME := HTC One XL
     TARGET_SCREEN_HEIGHT := 1280
     TARGET_SCREEN_WIDTH := 720
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
 
 #HTC One S - ville
 else ifeq ($(TARGET_PRODUCT), cm_ville)
     TARGET_COMMON_NAME := HTC One S
     TARGET_SCREEN_HEIGHT := 960
     TARGET_SCREEN_WIDTH := 540
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
 
 #HTC One V - primou (no cm device tree)
 else ifeq ($(TARGET_PRODUCT), cm_primou)
@@ -631,6 +673,7 @@ else ifeq ($(TARGET_PRODUCT), cm_primou)
     TARGET_SCREEN_HEIGHT := 800
     TARGET_SCREEN_WIDTH := 480
     BOARD_HAS_LOW_RESOLUTION := true
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
 
 #HTC Evo 4G LTE (jewel)
 else ifeq ($(TARGET_PRODUCT), cm_jewel)
@@ -638,25 +681,39 @@ else ifeq ($(TARGET_PRODUCT), cm_jewel)
     KERNEL_EXFAT_MODULE_NAME := "texfat"
     TARGET_SCREEN_HEIGHT := 1280
     TARGET_SCREEN_WIDTH := 720
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
 
 #HTC Rezound (vigor)
 else ifeq ($(TARGET_PRODUCT), cm_vigor)
     TARGET_COMMON_NAME := HTC Rezound
     TARGET_SCREEN_HEIGHT := 1280
     TARGET_SCREEN_WIDTH := 720
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
 
 #HTC One M8 (m8)
 else ifneq ($(filter $(TARGET_PRODUCT),cm_m8 cm_m8spr cm_m8vzw cm_m8att),)
     TARGET_COMMON_NAME := HTC One M8 ($(TARGET_PRODUCT))
-    KERNEL_EXFAT_MODULE_NAME := "texfat"
+    KERNEL_EXFAT_MODULE_NAME := "exfat"
     TARGET_SCREEN_HEIGHT := 1920
     TARGET_SCREEN_WIDTH := 1080
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
 
 #HTC One Mini (m4)
 else ifeq ($(TARGET_PRODUCT), cm_m4)
     TARGET_COMMON_NAME := HTC One Mini
     TARGET_SCREEN_HEIGHT := 1280
     TARGET_SCREEN_WIDTH := 720
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
+
+#HTC Wildfire S (marvel) - armv6
+else ifeq ($(TARGET_PRODUCT), cm_marvel)
+    TARGET_COMMON_NAME := HTC Wildfire S
+    BOARD_USE_CUSTOM_RECOVERY_FONT := \"font_7x16.h\"
+    BOARD_USE_NTFS_3G := false
+    TARGET_SCREEN_HEIGHT := 480
+    TARGET_SCREEN_WIDTH := 320
+    BOARD_HAS_LOW_RESOLUTION := true
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
 
 #Huawei Acsend P1 U9200 - viva (no cm tree)
 else ifeq ($(TARGET_PRODUCT), cm_viva)
@@ -672,30 +729,35 @@ else ifeq ($(TARGET_PRODUCT), cm_p500)
     TARGET_SCREEN_HEIGHT := 480
     TARGET_SCREEN_WIDTH := 320
     BOARD_HAS_LOW_RESOLUTION := true
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
 
 #LG Optimus G ATT (e970) - Canada (e973) - Sprint (ls970) - Intl (e975)
 else ifneq ($(filter $(TARGET_PRODUCT),cm_e970 cm_e973 cm_ls970 cm_e975),)
     TARGET_COMMON_NAME := Optimus G ($(TARGET_PRODUCT))
     TARGET_SCREEN_HEIGHT := 1280
     TARGET_SCREEN_WIDTH := 768
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
 
 #LG Optimus G Pro (GSM) - e980
 else ifeq ($(TARGET_PRODUCT), cm_e980)
     TARGET_COMMON_NAME := Optimus G Pro
     TARGET_SCREEN_HEIGHT := 1920
     TARGET_SCREEN_WIDTH := 1080
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
 
 #LG Spectrum 4G - vs920
 else ifeq ($(TARGET_PRODUCT), cm_vs920)
     TARGET_COMMON_NAME := Spectrum 4G
     TARGET_SCREEN_HEIGHT := 1280
     TARGET_SCREEN_WIDTH := 720
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
 
 #LG Nitro HD AT&T - p930
 else ifeq ($(TARGET_PRODUCT), cm_p930)
     TARGET_COMMON_NAME := LG Nitro HD
     TARGET_SCREEN_HEIGHT := 1280
     TARGET_SCREEN_WIDTH := 720
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
 
 #LG G2 AT&T (d800) - G2 TMO (d801) - G2 Int (d802) - G2 CAN (d803) - d805 - d806 - G2 Verizon (vs980) - G2 Sprint (ls980)
 else ifneq ($(filter $(TARGET_PRODUCT),cm_d800 cm_d801 cm_d802 cm_d803 cm_d805 cm_d806 cm_vs980 cm_ls980),)
@@ -703,18 +765,21 @@ else ifneq ($(filter $(TARGET_PRODUCT),cm_d800 cm_d801 cm_d802 cm_d803 cm_d805 c
     KERNEL_EXFAT_MODULE_NAME := "exfat"
     TARGET_SCREEN_HEIGHT := 1920
     TARGET_SCREEN_WIDTH := 1080
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
 
 #LG G Pad 8.3 (v500)
 else ifeq ($(TARGET_PRODUCT), cm_v500)
     TARGET_COMMON_NAME := LG G Pad 8.3
     TARGET_SCREEN_HEIGHT := 1920
     TARGET_SCREEN_WIDTH := 1200
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
 
 #LG Optimus 4X HD P880 (p880)
 else ifeq ($(TARGET_PRODUCT), cm_p880)
     TARGET_COMMON_NAME := Optimus 4X HD P880
     TARGET_SCREEN_HEIGHT := 1280
     TARGET_SCREEN_WIDTH := 720
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
 
 #LG Optimus L5 E610 (e610)
 else ifeq ($(TARGET_PRODUCT), cm_e610)
@@ -723,6 +788,7 @@ else ifeq ($(TARGET_PRODUCT), cm_e610)
     TARGET_SCREEN_HEIGHT := 480
     TARGET_SCREEN_WIDTH := 320
     BOARD_HAS_LOW_RESOLUTION := true
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
 
 #LG Optimus L7 P700 (p700)
 else ifeq ($(TARGET_PRODUCT), cm_p700)
@@ -730,6 +796,7 @@ else ifeq ($(TARGET_PRODUCT), cm_p700)
     TARGET_SCREEN_HEIGHT := 800
     TARGET_SCREEN_WIDTH := 480
     BOARD_HAS_LOW_RESOLUTION := true
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
 
 #LG Optimus L7 P705 (p705)
 else ifeq ($(TARGET_PRODUCT), cm_p705)
@@ -737,6 +804,7 @@ else ifeq ($(TARGET_PRODUCT), cm_p705)
     TARGET_SCREEN_HEIGHT := 800
     TARGET_SCREEN_WIDTH := 480
     BOARD_HAS_LOW_RESOLUTION := true
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
 
 #Micromax A57 - a57 (no cm tree)
 else ifeq ($(TARGET_PRODUCT), cm_a57)
@@ -746,6 +814,7 @@ else ifeq ($(TARGET_PRODUCT), cm_a57)
     TARGET_SCREEN_HEIGHT := 480
     TARGET_SCREEN_WIDTH := 320
     BOARD_HAS_LOW_RESOLUTION := true
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
 
 #Motorola Droid RAZR M - xt907
 else ifeq ($(TARGET_PRODUCT), cm_xt907)
@@ -787,18 +856,21 @@ else ifeq ($(TARGET_PRODUCT), cm_falcon)
     TARGET_COMMON_NAME := Moto G (falcon)
     TARGET_SCREEN_HEIGHT := 1280
     TARGET_SCREEN_WIDTH := 720
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
 
 #Oppo Find5 (find5)
 else ifeq ($(TARGET_PRODUCT), cm_find5)
     TARGET_COMMON_NAME := Oppo Find5
     TARGET_SCREEN_HEIGHT := 1920
     TARGET_SCREEN_WIDTH := 1080
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
 
 #Oppo N1 (n1)
 else ifeq ($(TARGET_PRODUCT), cm_n1)
     TARGET_COMMON_NAME := Oppo N1
     TARGET_SCREEN_HEIGHT := 1920
     TARGET_SCREEN_WIDTH := 1080
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
 
 #Sony Xperia Z (yuga)
 else ifeq ($(TARGET_PRODUCT), cm_yuga)
@@ -830,6 +902,7 @@ else ifeq ($(TARGET_PRODUCT), cm_nozomi)
     #KERNEL_EXFAT_MODULE_NAME := "texfat"
     TARGET_SCREEN_HEIGHT := 1280
     TARGET_SCREEN_WIDTH := 720
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
 
 #Sony Xperia SP (huashan)
 else ifeq ($(TARGET_PRODUCT), cm_huashan)
@@ -884,12 +957,14 @@ else ifeq ($(TARGET_PRODUCT), cm_warp2)
     TARGET_COMMON_NAME := ZTE Warp Sequent - N861
     TARGET_SCREEN_HEIGHT := 960
     TARGET_SCREEN_WIDTH := 540
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
 
 #ZTE Awe (nex)
 else ifeq ($(TARGET_PRODUCT), cm_nex)
     TARGET_COMMON_NAME := ZTE Awe (nex)
     TARGET_SCREEN_HEIGHT := 800
     TARGET_SCREEN_WIDTH := 480
+    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
 
 endif
 #---- end device specific config
@@ -902,12 +977,27 @@ endif
 
 LOCAL_CFLAGS += -DTARGET_COMMON_NAME="$(TARGET_COMMON_NAME)"
 
-# Battery level default path (PhilZ Touch Only)
-ifndef BATTERY_LEVEL_PATH
-    BATTERY_LEVEL_PATH := "/sys/class/power_supply/battery/capacity"
-endif
+ifdef PHILZ_TOUCH_RECOVERY
+    # Battery level default path (PhilZ Touch Only)
+    ifndef BATTERY_LEVEL_PATH
+        BATTERY_LEVEL_PATH := "/sys/class/power_supply/battery/capacity"
+    endif
 
-# Screen brightness level (PhilZ Touch Only)
-ifndef BRIGHTNESS_SYS_FILE
-    BRIGHTNESS_SYS_FILE := "/sys/class/leds/lcd-backlight/brightness"
+    ifndef BRIGHTNESS_SYS_FILE
+        BRIGHTNESS_SYS_FILE := ""
+    endif
+
+    ifndef TARGET_SCREEN_HEIGHT
+        $(warning ************************************************************)
+        $(warning * TARGET_SCREEN_HEIGHT is NOT SET in BoardConfig.mk )
+        $(warning ************************************************************)
+        $(error stopping)
+    endif
+
+    ifndef TARGET_SCREEN_WIDTH
+        $(warning ************************************************************)
+        $(warning * TARGET_SCREEN_WIDTH is NOT SET in BoardConfig.mk )
+        $(warning ************************************************************)
+        $(error stopping)
+    endif
 endif
