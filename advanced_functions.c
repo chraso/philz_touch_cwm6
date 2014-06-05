@@ -90,6 +90,87 @@
 /*      Part of PhilZ Touch Recovery     */
 /*****************************************/
 
+#ifdef BOARD_RECOVERY_CREATE_SE_CONTAINER
+#include <selinux/selinux.h>
+#include <selinux/label.h>
+#include <selinux/android.h>
+
+static int nochange;
+static int verbose;
+int bakupcon_to_file(const char *pathname, const char *filename)
+{
+    int ret = 0;
+    struct stat sb;
+    char* filecontext = NULL;
+    FILE * f = NULL;
+    if (lstat(pathname, &sb) < 0) {
+        LOGW("bakupcon_to_file: %s not found\n", pathname);
+        return -1;
+    }
+
+    if (lgetfilecon(pathname, &filecontext) < 0) {
+        LOGW("bakupcon_to_file: can't get %s context\n", pathname);
+        ret = 1;
+    }
+    else {
+        if ((f = fopen(filename, "a+")) == NULL) {
+            LOGE("bakupcon_to_file: can't create %s\n", filename);
+            return -1;
+        }
+        //fprintf(f, "chcon -h %s '%s'\n", filecontext, pathname);
+        fprintf(f, "%s\t%s\n", pathname, filecontext);
+        fclose(f);
+        freecon(filecontext);
+    }
+
+    //skip read symlink directory
+    if (S_ISLNK(sb.st_mode)) return 0;
+
+    DIR *dir = opendir(pathname);
+    // not a directory, carry on
+    if (dir == NULL) return 0;
+
+    struct dirent *entry;
+    while ((entry = readdir(dir)) != NULL) {
+        char *entryname;
+        if (!strcmp(entry->d_name, ".."))
+            continue;
+        if (!strcmp(entry->d_name, "."))
+            continue;
+        if (asprintf(&entryname, "%s/%s", pathname, entry->d_name) == -1)
+            continue;
+        if ((is_data_media() && (strncmp(entryname, "/data/media/", 12) == 0)) ||
+                strncmp(entryname, "/data/data/com.google.android.music/files/", 42) == 0 )
+            continue;
+
+        bakupcon_to_file(entryname, filename);
+        free(entryname);
+    }
+
+    closedir(dir);
+    return ret;
+}
+
+void create_external_selinux_container() {
+    static const char* headers[] = { "Choose a backup path", NULL };
+    char path[PATH_MAX];
+    char* file;
+
+    sprintf(path, "/sdcard/%s", CWM_BACKUP_PATH);    
+    file = choose_file_menu(path, NULL, headers);
+    if (file == NULL)
+        return;
+
+    ui_print("backing up /data selinux context...\n");
+    sprintf(path, "%s/data.context", file);
+    if (bakupcon_to_file("/data", path) < 0)
+        LOGE("backup selinux context error!\n");
+    else
+        ui_print("backup /data selinux context completed.\n");
+    free(file);
+}
+#endif
+
 // ignore_android_secure = 1: this will force skipping android secure from backup/restore jobs
 static int ignore_android_secure = 0;
 
@@ -423,7 +504,7 @@ int file_found(const char* filename) {
         // do not try to mount ramdisk, else it will error "unknown volume for path..."
         ensure_path_mounted(filename);
     }
-    if (0 == stat(filename, &s))
+    if (0 == lstat(filename, &s))
         return 1;
 
     return 0;
@@ -469,7 +550,7 @@ int copy_a_file(const char* file_in, const char* file_out) {
         return -1;
     }
 
-    // this will chmod folder to 775
+    // this will chmod directory to 777
     char tmp[PATH_MAX];
     sprintf(tmp, "%s", DirName(file_out));
     ensure_directory(tmp);
@@ -487,7 +568,6 @@ int copy_a_file(const char* file_in, const char* file_out) {
 
     // start copy
     size_t size;
-    // unsigned int size;
     while ((size = fread(tmp, 1, sizeof(tmp), fp))) {
         fwrite(tmp, 1, size, fp_out);
     }
@@ -996,14 +1076,14 @@ void start_md5_display_thread(char* filepath) {
 
 void stop_md5_display_thread() {
     cancel_md5digest = 1;
-#ifdef PHILZ_TOUCH_RECOVERY
-    ui_print_preset_colors(0, NULL);
-#endif
     if (pthread_kill(tmd5_display, 0) != ESRCH)
         ui_print("Cancelling md5sum...\n");
 
     pthread_join(tmd5_display, NULL);
     set_ensure_mount_always_true(0);
+#ifdef PHILZ_TOUCH_RECOVERY
+    ui_print_preset_colors(0, NULL);
+#endif
 }
 
 void start_md5_verify_thread(char* filepath) {
@@ -1026,14 +1106,14 @@ void start_md5_verify_thread(char* filepath) {
 
 void stop_md5_verify_thread() {
     cancel_md5digest = 1;
-#ifdef PHILZ_TOUCH_RECOVERY
-    ui_print_preset_colors(0, NULL);
-#endif
     if (pthread_kill(tmd5_verify, 0) != ESRCH)
         ui_print("Cancelling md5 check...\n");
 
     pthread_join(tmd5_verify, NULL);
     set_ensure_mount_always_true(0);
+#ifdef PHILZ_TOUCH_RECOVERY
+    ui_print_preset_colors(0, NULL);
+#endif
 }
 // ------- End md5sum display
 
@@ -1140,6 +1220,14 @@ int write_config_file(const char* config_file, const char* key, const char* valu
         LOGE("failed to rename temporary settings file!\n");
         return -1;
     }
+
+    // if we are editing recovery settings file, create a second copy on primary storage
+    if (strcmp(PHILZ_SETTINGS_FILE, config_file) == 0) {
+        sprintf(tmp, "%s/%s", get_primary_storage_path(), PHILZ_SETTINGS_FILE2);
+        if (copy_a_file(config_file, tmp) != 0)
+            LOGE("failed duplicating settings file to primary storage!\n");
+    }
+
     LOGI("%s was set to %s\n", key, value);
     return 0;
 }
@@ -2007,9 +2095,6 @@ void misc_nandroid_menu() {
     char item_prompt_low_space[MENU_MAX_COLS];
     char item_ors_path[MENU_MAX_COLS];
     char item_compress[MENU_MAX_COLS];
-#ifdef BOARD_RECOVERY_USE_BBTAR
-    char item_secontext[MENU_MAX_COLS];
-#endif
 
     char* list[] = {
         item_md5,
@@ -2023,8 +2108,8 @@ void misc_nandroid_menu() {
         item_compress,
         "Default Backup Format...",
         "Regenerate md5 Sum",
-#ifdef BOARD_RECOVERY_USE_BBTAR
-        item_secontext,
+#ifdef BOARD_RECOVERY_CREATE_SE_CONTAINER
+        "Create /data selinux container",
 #endif
         NULL
     };
@@ -2033,11 +2118,6 @@ void misc_nandroid_menu() {
     char* primary_path = get_primary_storage_path();
     char hidenandprogress_file[PATH_MAX];
     sprintf(hidenandprogress_file, "%s/%s", primary_path, NANDROID_HIDE_PROGRESS_FILE);
-#ifdef BOARD_RECOVERY_USE_BBTAR
-    int nandroid_secontext;
-    char ignore_nand_secontext_file[PATH_MAX];
-    sprintf(ignore_nand_secontext_file, "%s/%s", primary_path, NANDROID_IGNORE_SELINUX_FILE);
-#endif
 
     int fmt;
     for (;;) {
@@ -2090,13 +2170,6 @@ void misc_nandroid_menu() {
             else ui_format_gui_menu(item_compress, "Compression", TAR_GZ_DEFAULT_STR); // useless but to not make exceptions
         } else
             ui_format_gui_menu(item_compress, "Compression", "No");
-
-#ifdef BOARD_RECOVERY_USE_BBTAR
-        nandroid_secontext = !file_found(ignore_nand_secontext_file);
-        if (nandroid_secontext)
-            ui_format_gui_menu(item_secontext, "Process SE Context", "(x)");
-        else ui_format_gui_menu(item_secontext, "Process SE Context", "( )");
-#endif
 
         int chosen_item = get_filtered_menu_selection(headers, list, 0, 0, sizeof(list) / sizeof(char*));
         if (chosen_item == GO_BACK)
@@ -2190,12 +2263,9 @@ void misc_nandroid_menu() {
                 regenerate_md5_sum_menu();
                 break;
             }
-#ifdef BOARD_RECOVERY_USE_BBTAR
+#ifdef BOARD_RECOVERY_CREATE_SE_CONTAINER
             case 11: {
-                nandroid_secontext ^= 1;
-                if (nandroid_secontext)
-                    delete_a_file(ignore_nand_secontext_file);
-                else write_string_to_file(ignore_nand_secontext_file, "1");
+                create_external_selinux_container();
                 break;
             }
 #endif
@@ -3766,8 +3836,10 @@ static void load_theme_settings() {
     if (theme_file == NULL)
         return;
 
-    if (confirm_selection("Overwrite default settings ?", "Yes - Apply New Theme") &&
-            copy_a_file(theme_file, PHILZ_SETTINGS_FILE) == 0) {
+    if (confirm_selection("Overwrite default settings ?", "Yes - Apply New Theme") && copy_a_file(theme_file, PHILZ_SETTINGS_FILE) == 0) {
+        char settings_copy[PATH_MAX];
+        sprintf(settings_copy, "%s/%s", get_primary_storage_path(), PHILZ_SETTINGS_FILE2);
+        copy_a_file(theme_file, settings_copy);
         refresh_recovery_settings(0);
         ui_print("loaded default settings from %s\n", BaseName(theme_file));
     }
@@ -3784,8 +3856,8 @@ static void import_export_settings() {
     };
 
     static char* list[] = {
-        "Save Default Settings to sdcard",
-        "Load Default Settings from sdcard",
+        "Backup Recovery Settings to sdcard",
+        "Restore Recovery Settings from sdcard",
         "Save Current Theme to sdcard",
         "Load Existing Theme from sdcard",
         "Delete Saved Themes",
@@ -3804,11 +3876,14 @@ static void import_export_settings() {
         switch (chosen_item) {
             case 0: {
                 if (copy_a_file(PHILZ_SETTINGS_FILE, backup_file) == 0)
-                    ui_print("config file successefully backed up to %s\n", backup_file);
+                    ui_print("config file successfully backed up to %s\n", backup_file);
                 break;
             }
             case 1: {
                 if (copy_a_file(backup_file, PHILZ_SETTINGS_FILE) == 0) {
+                    char settings_copy[PATH_MAX];
+                    sprintf(settings_copy, "%s/%s", get_primary_storage_path(), PHILZ_SETTINGS_FILE2);
+                    copy_a_file(backup_file, settings_copy);
                     refresh_recovery_settings(0);
                     ui_print("settings loaded from %s\n", backup_file);
                 }
@@ -3850,23 +3925,22 @@ static void import_export_settings() {
 
 void show_philz_settings_menu()
 {
-    static const char* headers[] = {  "PhilZ Settings",
-                                NULL
-    };
+    static const char* headers[] = {"PhilZ Settings", NULL};
 
     char item_check_root_and_recovery[MENU_MAX_COLS];
     char item_auto_restore[MENU_MAX_COLS];
 
-    char* list[] = { "Open Recovery Script",
-                        "Aroma File Manager",
-                        "Re-root System (SuperSU)",
-                        item_check_root_and_recovery,
-                        item_auto_restore,
-                        "Save and Restore Settings",
-                        "Reset All Recovery Settings",
-                        "GUI Preferences",
-                        "About",
-                         NULL
+    char* list[] = {
+        "Open Recovery Script",
+        "Aroma File Manager",
+        "Re-root System (SuperSU)",
+        item_check_root_and_recovery,
+        item_auto_restore,
+        "Save and Restore Settings",
+        "Reset All Recovery Settings",
+        "GUI Preferences",
+        "About",
+        NULL
     };
 
     for (;;) {
@@ -3942,7 +4016,10 @@ void show_philz_settings_menu()
             }
             case 6: {
                 if (confirm_selection("Reset all recovery settings?", "Yes - Reset to Defaults")) {
+                    char settings_copy[PATH_MAX];
+                    sprintf(settings_copy, "%s/%s", get_primary_storage_path(), PHILZ_SETTINGS_FILE2);
                     delete_a_file(PHILZ_SETTINGS_FILE);
+                    delete_a_file(settings_copy);
                     refresh_recovery_settings(0);
                     ui_print("All settings reset to default!\n");
                 }

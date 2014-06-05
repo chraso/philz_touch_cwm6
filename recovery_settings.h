@@ -17,10 +17,6 @@
 // nandroid settings
 #define NANDROID_HIDE_PROGRESS_FILE  "clockworkmod/.hidenandroidprogress"
 #define NANDROID_BACKUP_FORMAT_FILE  "clockworkmod/.default_backup_format"
-#ifdef BOARD_RECOVERY_USE_BBTAR
-#define NANDROID_IGNORE_SELINUX_FILE "clockworkmod/.ignore_nandroid_secontext"
-#endif
-
 #define EFS_BACKUP_PATH     "clockworkmod/backup/.efs_backup"
 #define MODEM_BIN_PATH      "clockworkmod/backup/.modem_bin"
 #define RADIO_BIN_PATH      "clockworkmod/backup/.radio_bin"
@@ -29,7 +25,11 @@
 #define CUSTOM_ROM_PATH     "clockworkmod/custom_rom"
 
 // other settings
+// PHILZ_SETTINGS_FILE  : main config file loaded on start up
+// PHILZ_SETTINGS_FILE2 : whenever we write to config file, we do a second copy on sdcard to be loaded after a wipe for example
+// PHILZ_SETTINGS_BAK   : created/loaded from settings menus (user can save his custom settings before trying some modifications)
 #define PHILZ_SETTINGS_FILE     "/data/philz-touch/philz-touch_6.ini"
+#define PHILZ_SETTINGS_FILE2    "clockworkmod/philz-touch_6.sav"
 #define PHILZ_SETTINGS_BAK      "clockworkmod/philz-touch_6.ini.bak"
 #define PHILZ_THEMES_PATH       "clockworkmod/themes"
 #define AROMA_FM_PATH           "clockworkmod/aromafm/aromafm.zip"
